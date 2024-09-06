@@ -42,7 +42,7 @@ const filteredProducts = computed(() => {
 
 onMounted(() => {
   axios
-    .get('http://localhost:3000/products')
+    .get('https://be-vue-node.vercel.app/api/products')
     .then((response) => {
       products.value = response.data
     })

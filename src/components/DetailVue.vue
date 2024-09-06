@@ -59,7 +59,7 @@ const pesan = ref({})
 
 const fetchProduct = () => {
   axios
-    .get('http://localhost:3000/products/' + route.params.id)
+    .get('https://be-vue-node.vercel.app/api/products/' + route.params.id)
     .then((response) => {
       product.value = response.data
     })
@@ -72,7 +72,7 @@ const pemesanan = () => {
   if (pesan.value.jumlah_pesanan) {
     pesan.value.products = product.value
     axios
-      .post('http://localhost:3000/keranjangs', pesan.value)
+      .post('https://be-vue-node.vercel.app/api/keranjangs', pesan.value)
       .then(() => {
         router.push('/checkout')
         alert('Success add product to cart')

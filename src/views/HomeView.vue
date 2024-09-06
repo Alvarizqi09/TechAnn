@@ -17,7 +17,7 @@ import { ref, onMounted } from 'vue'
 const products = ref([])
 onMounted(() => {
   axios
-    .get('http://localhost:3000/best-products')
+    .get('https://be-vue-node.vercel.app/api/best-products')
     .then((response) => {
       products.value = response.data
     })

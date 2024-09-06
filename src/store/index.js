@@ -26,7 +26,7 @@ const store = createStore({
   actions: {
     fetchKeranjangs({ commit }) {
       axios
-        .get('http://localhost:3000/keranjangs')
+        .get('https://be-vue-node.vercel.app/api/keranjangs')
         .then((response) => {
           commit('setKeranjangs', response.data)
         })
@@ -36,7 +36,7 @@ const store = createStore({
     },
     deleteKeranjang({ dispatch }, id) {
       axios
-        .delete('http://localhost:3000/keranjangs/' + id)
+        .delete('https://be-vue-node.vercel.app/api/keranjangs/' + id)
         .then(() => {
           alert('Product successfully deleted')
 

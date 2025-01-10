@@ -15,7 +15,7 @@ import { useStore } from 'vuex'
 
 onMounted(() => {
   const store = useStore()
-  store.dispatch('fetchKeranjangs') // Fetch keranjangs when the app starts
+  store.dispatch('fetchKeranjangs') 
 })
 </script>
 

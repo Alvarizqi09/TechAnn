@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container w-full">
     <h1 class="text-2xl font-bold text-accent mt-4">DAFTAR PRODUCT</h1>
     <div class="flex justify-end">
       <label class="input bg-white input-accent flex items-center gap-2">
@@ -19,9 +19,14 @@
       </label>
     </div>
     <div
-      class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full h-full items-center justify-center mt-10"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full h-full items-center justify-center mt-10"
     >
-      <CardVue v-for="product in filteredProducts" :key="product.id" :product="product" />
+      <CardVue
+        v-for="product in filteredProducts"
+        :key="product.id"
+        :product="product"
+        class="mx-auto"
+      />
     </div>
   </div>
 </template>

@@ -96,9 +96,11 @@ const handleCheckout = async () => {
 
   try {
     const result = await store.dispatch('checkout')
+
+    // Kirim data invoice melalui state
     router.push({
-      path: '/checkout/success',
-      state: { invoice: result.invoice }
+      path: '/success',
+      state: { invoice: result.invoice } // Pastikan ini sesuai
     })
   } catch (error) {
     alert('Gagal melakukan checkout: ' + error.message)

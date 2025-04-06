@@ -36,8 +36,8 @@ const router = createRouter({
       component: AboutVue
     },
     {
-      path: '/checkout/success',
-      name: 'SuccessCheckout',
+      path: '/success',
+      name: 'Success',
       component: SuccessVue
     }
   ]

@@ -4,16 +4,16 @@
     <div class="overflow-x-auto">
       <table class="table">
         <!-- head -->
-        <thead>
+        <thead class="bg-gray-100">
           <tr>
-            <th>No</th>
-            <th>Foto</th>
+            <th class="hidden md:table-cell">No</th>
+            <th class="hidden md:table-cell">Foto</th>
             <th>Makanan</th>
-            <th>Keterangan</th>
+            <th class="hidden md:table-cell">Keterangan</th>
             <th>Jumlah</th>
-            <th>Harga</th>
-            <th>Total Harga</th>
-            <th>Action</th>
+            <th class="hidden md:table-cell">Harga</th>
+            <th>Total</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -60,6 +60,18 @@
               <p class="text-black font-bold text-md">{{ totalHarga }}</p>
             </td>
           </tr>
+          <!-- Di dalam <tbody> setelah row total harga -->
+          <tr>
+            <td colspan="8" class="text-center">
+              <button
+                @click="handleCheckout"
+                class="btn btn-primary mt-4"
+                :disabled="keranjangs.length === 0"
+              >
+                PROSES CHECKOUT
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -69,7 +81,9 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const store = useStore()
 
 const deleteKeranjang = (id) => {
@@ -77,7 +91,19 @@ const deleteKeranjang = (id) => {
     alert('Success delete product')
   })
 }
+const handleCheckout = async () => {
+  if (!keranjangs.value.length) return
 
+  try {
+    const result = await store.dispatch('checkout')
+    router.push({
+      path: '/checkout/success',
+      state: { invoice: result.invoice }
+    })
+  } catch (error) {
+    alert('Gagal melakukan checkout: ' + error.message)
+  }
+}
 const keranjangs = computed(() => store.state.keranjangs)
 
 const totalHarga = computed(() => store.getters.totalHarga)

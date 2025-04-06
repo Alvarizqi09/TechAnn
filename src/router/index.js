@@ -5,6 +5,7 @@ import CheckOutVue from '@/components/CheckOutVue.vue'
 import HomeView from '@/views/HomeView.vue'
 import DetailVue from '@/components/DetailVue.vue'
 import AboutVue from '@/pages/AboutVue.vue'
+import SuccessVue from '@/components/SuccessVue.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +34,11 @@ const router = createRouter({
       path: '/about',
       name: 'About',
       component: AboutVue
+    },
+    {
+      path: '/checkout/success',
+      name: 'SuccessCheckout',
+      component: SuccessVue
     }
   ]
 })

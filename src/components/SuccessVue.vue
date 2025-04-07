@@ -35,157 +35,17 @@
       <button @click="router.push('/')" class="btn btn-primary">Kembali ke Beranda</button>
     </div>
   </div>
-
-  <!-- Template PDF (Hidden) -->
-  <div class="pdf-template-wrapper">
-    <div ref="invoiceContent" class="pdf-template">
-      <div class="header-invoice">
-        <h1 class="store-name">Toko Elektronik XYZ</h1>
-        <div class="store-info">
-          <p>Jl. Contoh No. 123</p>
-          <p>Telp: 0812-3456-7890</p>
-        </div>
-      </div>
-
-      <div class="invoice-info">
-        <p>Invoice: #{{ invoice?.id }}</p>
-        <p>{{ formattedDate }}</p>
-      </div>
-
-      <table class="item-table">
-        <thead>
-          <tr>
-            <th class="text-left">Item</th>
-            <th class="text-right">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, idx) in invoice?.items" :key="idx">
-            <td>
-              <div class="product-name">{{ item?.products?.nama }}</div>
-              <div class="product-qty">
-                {{ item?.jumlah_pesanan }}x @{{ formatCurrency(item?.products?.harga) }}
-              </div>
-            </td>
-            <td class="text-right">
-              {{ formatCurrency(item.jumlah_pesanan * item.products.harga) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="total-section">
-        <div class="total-row">
-          <span>TOTAL</span>
-          <span>{{ formatCurrency(invoice?.total) }}</span>
-        </div>
-      </div>
-
-      <div class="footer">
-        <p>Terima kasih telah berbelanja</p>
-        <p>www.toko-elektronik-xyz.com</p>
-      </div>
-    </div>
-  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 
 const router = useRouter()
 const route = useRoute()
 const invoice = ref(null)
-const invoiceContent = ref(null)
-const formatCurrency = (value) => {
-  return 'Rp' + value?.toLocaleString('id-ID') || '0'
-}
 
-const formattedDate = computed(() => {
-  if (!invoice.value?.date) return ''
-  const options = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }
-  return new Date(invoice.value.date).toLocaleDateString('id-ID', options)
-})
-
-const downloadPDF = async () => {
-  try {
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: [100, 500],
-      hotfixes: ['px_scaling'],
-      putOnlyUsedFonts: true
-    })
-
-    const options = {
-      scale: 2,
-      useCORS: true,
-      logging: true,
-      width: 100,
-      windowWidth: 1000,
-      height: invoiceContent.value.scrollHeight,
-      backgroundColor: '#FFFFFF', // Tambahkan ini
-      onclone: (clonedDoc) => {
-        clonedDoc.body.style.width = '100mm'
-        clonedDoc.body.style.padding = '2mm'
-        clonedDoc.body.style.overflow = 'visible'
-
-        // Force semua warna ke format hex
-        clonedDoc.querySelectorAll('*').forEach((el) => {
-          const styles = window.getComputedStyle(el)
-
-          // Handle text color
-          if (styles.color.includes('oklch') || styles.color.includes('rgb')) {
-            el.style.color = '#000000'
-          }
-
-          // Handle background color
-          if (
-            styles.backgroundColor.includes('oklch') ||
-            styles.backgroundColor !== 'rgba(0, 0, 0, 0)'
-          ) {
-            el.style.backgroundColor = '#FFFFFF'
-          }
-
-          // Hapus efek styling
-          el.style.boxShadow = 'none'
-          el.style.borderRadius = '0'
-          el.style.transform = 'scale(1)'
-          el.style.whiteSpace = 'pre-wrap'
-        })
-      }
-    }
-
-    const canvas = await html2canvas(invoiceContent.value, options)
-    const imgData = canvas.toDataURL('image/png')
-
-    const pdfWidth = doc.internal.pageSize.getWidth()
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width
-
-    // Hitung jumlah halaman
-    const pageHeight = doc.internal.pageSize.getHeight()
-    let position = 0
-
-    while (position < pdfHeight) {
-      if (position > 0) doc.addPage()
-      doc.addImage(imgData, 'PNG', 0, -position, pdfWidth, pdfHeight)
-      position += pageHeight
-    }
-
-    doc.save(`invoice-${invoice.value.id}.pdf`)
-  } catch (error) {
-    console.error('Gagal generate PDF:', error)
-    alert('Gagal mengunduh PDF. Silakan coba lagi.')
-  }
-}
 onMounted(() => {
   invoice.value = route.params.invoice || history.state?.invoice
 
@@ -197,94 +57,136 @@ onMounted(() => {
     }
   }
 })
+
+const downloadPDF = () => {
+  const doc = new jsPDF()
+
+  // Color Palette
+  const primaryColor = '#4F46E5' // Ungu elegan
+  const accentColor = '#10B981' // Hijau untuk aksen
+  const darkColor = '#1F2937' // Untuk teks utama
+  const lightColor = '#F9FAFB' // Untuk background
+  const borderColor = '#E5E7EB' // Untuk garis pembatas
+
+  // Add decorative border
+  doc.setDrawColor(primaryColor)
+  doc.setLineWidth(0.5)
+  doc.rect(15, 15, 180, 260) // Border luar
+
+  // Header Section
+  doc.setFillColor(primaryColor)
+  doc.rect(20, 20, 170, 20, 'F')
+
+  doc.setFontSize(16)
+  doc.setTextColor(255, 255, 255)
+  doc.text('INVOICE PEMBELIAN', 105, 32, null, null, 'center')
+
+  // Store Info (dalam box)
+  doc.setFillColor(lightColor)
+  doc.rect(20, 45, 170, 25, 'F')
+  doc.setDrawColor(borderColor)
+  doc.rect(20, 45, 170, 25)
+
+  doc.setFontSize(10)
+  doc.setTextColor(darkColor)
+  doc.text('Toko Online Premium Kami', 30, 52)
+  doc.text('Jl. Kemanggisan No. 12, Jakarta', 30, 58)
+  doc.text('Telp: (021) 1234-5678', 130, 52)
+  doc.text('Email: hello@premiumstore.id', 130, 58)
+
+  // Invoice Info
+  doc.setFontSize(12)
+  doc.text(`Invoice #${invoice.value.id}`, 20, 80)
+  doc.text(`Tanggal: ${new Date().toLocaleDateString('id-ID')}`, 20, 88)
+
+  doc.setDrawColor(borderColor)
+  doc.line(20, 92, 190, 92)
+
+  // Table Header - Perubahan di sini (lebar kolom disesuaikan)
+  doc.setFillColor(primaryColor)
+  doc.rect(20, 97, 170, 10, 'F')
+  doc.setTextColor(255, 255, 255)
+
+  // Perubahan posisi kolom untuk memberi ruang lebih
+  const colPositions = {
+    no: 25,
+    product: 40, // Diperlebar dari 50
+    qty: 120,
+    price: 145, // Digeser ke kanan dari 140
+    subtotal: 180 // Digeser lebih ke kanan dari 170
+  }
+
+  doc.text('No', colPositions.no, 104)
+  doc.text('Produk', colPositions.product, 104)
+  doc.text('Qty', colPositions.qty, 104)
+  doc.text('Harga', colPositions.price, 104)
+  doc.text('Subtotal', colPositions.subtotal, 104, null, null, 'right')
+
+  // Table Rows
+  doc.setFontSize(10)
+  let y = 115
+  invoice.value.items.forEach((item, index) => {
+    // Alternate row colors
+    if (index % 2 === 0) {
+      doc.setFillColor(lightColor)
+      doc.rect(20, y - 5, 170, 10, 'F')
+    }
+
+    doc.setTextColor(darkColor)
+    doc.text((index + 1).toString(), colPositions.no, y)
+
+    // Nama produk dipotong jika terlalu panjang
+    const productName = doc.splitTextToSize(item.products.nama, 60)
+    doc.text(productName, colPositions.product, y)
+
+    doc.text(item.jumlah_pesanan.toString(), colPositions.qty, y)
+
+    // Format harga dengan alignment right
+    doc.text(
+      `Rp${item.products.harga.toLocaleString('id-ID')}`,
+      colPositions.price,
+      y,
+      null,
+      null,
+      'right'
+    )
+    doc.text(
+      `Rp${(item.jumlah_pesanan * item.products.harga).toLocaleString('id-ID')}`,
+      colPositions.subtotal,
+      y,
+      null,
+      null,
+      'right'
+    )
+
+    // Menyesuaikan tinggi row berdasarkan panjang teks produk
+    y += productName.length * 5 + 5
+  })
+
+  // Total Section
+  doc.setDrawColor(borderColor)
+  doc.line(140, y + 5, 190, y + 5)
+
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Total:', 140, y + 15)
+  doc.text(`Rp${invoice.value.total.toLocaleString('id-ID')}`, 190, y + 15, null, null, 'right')
+
+  doc.setFont('helvetica', 'normal')
+
+  // Payment Info
+  doc.setFontSize(10)
+  doc.setTextColor(darkColor)
+  doc.text('Metode Pembayaran: Transfer Bank', 20, y + 30)
+  doc.text('Bank: BCA - 1234567890', 20, y + 37)
+  doc.text('a.n. Premium Store Indonesia', 20, y + 44)
+
+  // Footer
+  doc.setFontSize(9)
+  doc.setTextColor(accentColor)
+  doc.text('Terima kasih telah berbelanja di toko kami!', 105, 270, null, null, 'center')
+
+  // Save PDF
+  doc.save(`invoice_${invoice.value.id}.pdf`)
+}
 </script>
-
-<style scoped>
-/* PDF View Styles */
-.pdf-template-wrapper {
-  position: absolute;
-  left: -9999px;
-  top: -9999px;
-}
-
-.pdf-template {
-  width: 80mm;
-  min-height: 297mm;
-  padding: 2mm;
-  background: #ffffff;
-  color: #000000;
-  font-family: Arial, sans-serif;
-  font-size: 10px;
-  line-height: 1.2;
-}
-
-.header-invoice {
-  text-align: center;
-  margin-bottom: 4mm;
-}
-
-.store-name {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 2mm;
-}
-
-.store-info p {
-  font-size: 9px;
-  margin: 1mm 0;
-}
-
-.invoice-info {
-  font-size: 9px;
-  margin-bottom: 4mm;
-}
-
-.item-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 4mm;
-}
-
-.item-table th,
-.item-table td {
-  padding: 2mm 0;
-  border-bottom: 1px dashed #000;
-}
-
-.product-name {
-  font-weight: bold;
-  margin-bottom: 1mm;
-}
-
-.product-qty {
-  font-size: 8px;
-  color: #555;
-}
-
-.total-section {
-  border-top: 2px dashed #000;
-  padding-top: 4mm;
-  margin-top: 4mm;
-}
-
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-}
-
-.footer {
-  text-align: center;
-  font-size: 8px;
-  margin-top: 6mm;
-  padding-top: 4mm;
-  border-top: 1px dashed #000;
-}
-
-.text-left {
-  text-align: left;
-}
-.text-right {
-  text-align: right;
-}
-</style>
